@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, Dr. {{ current_user.username }}</h2>
+        <h3>Doctor Dashboard</h3>
+        <div class="dashboard">
+            <ul>
+                <li><a href="{{ url_for('chat') }}">💬 Send Message</a></li>
+                <li><a href="{{ url_for('list_my_outcomes') }}">📋 View My Recorded Outcomes</a></li>
+                <li><a href="{{ url_for('check_in') }}">✅ Manage Patient Check-In</a></li>
+                <li><a href="{{ url_for('list_patients') }}">👥 Manage Patients</a></li>
+                <li><a href="{{ url_for('reset_password') }}">🔒 Reset Password</a></li>
+                <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+            </ul>
+        </div>
+        <h3>Upcoming Appointments</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment, patient in appointments %}
+                <tr>
+                    <td>{{ patient.name }} ({{ patient.patient_number }})</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.status }}</td>
+                    <td>
+                        {% if appointment.status == "Checked-In" %}
+                            <a href="{{ url_for('record_outcome', id=appointment.id) }}">Record Outcome</a>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        
+    </div>
+</body>
+</html>

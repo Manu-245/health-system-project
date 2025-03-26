@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, Receptionist</h2>
+        <h3>receptionist dashboard</h3>
+        <div class="dashboard">
+        <ul>
+            <li><a href="{{ url_for('chat') }}">💬 Send Message</a></li>
+            <li><a href="{{ url_for('register_patient') }}">➕ Add New Patient</a></li>
+            <li><a href="{{ url_for('add_doctor') }}">➕ Add New Doctor</a></li>
+            <li><a href="{{ url_for('book_appointment') }}">📅 Book an Appointment</a></li>
+            <li><a href="{{ url_for('list_appointments') }}">📋 View Appointments</a></li>
+            <li><a href="{{ url_for('list_patients') }}">👥 Manage Patients</a></li>
+            <li><a href="{{ url_for('check_in') }}">✅ Manage Patient Check-In</a></li>
+            <li><a href="{{ url_for('patient_history') }}">📂 View Patient Records</a></li>
+            <li><a href="{{ url_for('list_prescriptions') }}">💊 View Prescriptions</a></li>
+            <li><a href="{{ url_for('reset_password') }}">🔒 Reset Password</a></li>
+            <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+        </ul>
+        </div>
+
+        <h3>Available Doctors</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Doctor Number</th>
+                    <th>Name</th>
+                    <th>Specialty</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                <tr>
+                    <td>{{ doctor.doctor_number }}</td>
+                    <td>{{ doctor.name }}</td>
+                    <td>{{ doctor.specialty }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        
+        
+    </div>
+</body>
+</html>

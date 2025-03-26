@@ -1,0 +1,362 @@
+/* Root Variables for Easy Customization */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f8f9fa;
+    --text-color: #333;
+    --button-color: #0056b3;
+    --button-hover-color: #0056b3;
+    --table-header-color: #0056b3;
+    --table-row-hover: #d4edda;
+    --border-radius: 8px;
+}
+
+
+
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* Container */
+.container {
+    width: 50%;
+    margin: 50px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+}
+
+/* Title */
+h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Input Fields */
+input, textarea {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Button Styles */
+button {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: var(--button-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: var(--border-radius);
+}
+
+button:hover {
+    background-color: var(--button-hover-color);
+}
+
+/* Link Styling */
+a {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid var(--secondary-color);
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: var(--table-header-color);
+    color: white;
+}
+
+tr:hover {
+    background-color: var(--table-row-hover);
+}
+
+/* Flash Message Styling */
+.flash-messages {
+    text-align: center;
+    margin-bottom: 15px;
+    color: red;
+    font-weight: bold;
+}
+
+/* Delete Button */
+.delete-btn {
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}
+
+/* Cancel Button */
+.cancel-btn {
+    background-color: orange;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.cancel-btn:hover {
+    background-color: darkorange;
+}
+
+/* Cancelled Text */
+.cancelled-text {
+    color: red;
+    font-weight: bold;
+}
+ 
+/* Flash Message Styling */
+.flash-messages {
+    text-align: center;
+    margin-bottom: 15px;
+    color: green;
+    font-weight: bold;
+}
+
+
+/* Style for message containers */
+.message {
+    max-width: 60%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* Sent messages (Right-aligned) */
+.sent {
+    background-color: #d1e7fd;
+    text-align: right;
+    align-self: flex-end;
+    float: right;
+    clear: both;
+}
+
+/* Received messages (Left-aligned) */
+.received {
+    background-color: #f1f1f1;
+    text-align: left;
+    align-self: flex-start;
+    float: left;
+    clear: both;
+}
+
+/* Clear floats after each message */
+#chat-messages::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+/* Apply background image */
+.hero {
+    background: url("{{ url_for('static', filename='images/healthcare-bg.jpg') }}") no-repeat center center/cover;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+/* Style text inside the hero section */
+.content {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Style the Sign In button */
+.btn {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 18px;
+    color: white;
+    background: var(--button-color);
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: var(--button-hover-color);
+}
+
+/* Footer styles */
+footer {
+    text-align: center;
+    padding: 15px;
+    background: #333;
+    color: white;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+
+/* Dashboard Container */
+.dashboard {
+    max-width: 600px; /* Adjust width as needed */
+    margin: 20px auto;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dashboard List */
+.dashboard ul {
+    display: flex; /* Enables inline display */
+    flex-wrap: wrap; /* Allows wrapping based on screen size */
+    justify-content: center; /* Center aligns items */
+    gap: 5px; /* Space between links */
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+/* Dashboard Links */
+.dashboard ul li {
+    display: inline-block; /* Ensures items are inline */
+}
+
+/* Dashboard Link Styles */
+.dashboard ul li a {
+    display: inline-block;
+    padding: 8px 12px;
+    background: #2563EB;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+    white-space: nowrap; /* Prevents text from wrapping inside the button */
+}
+
+/* Hover Effect */
+.dashboard ul li a:hover {
+    background: #1D4ED8;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 500px) {
+    .dashboard ul {
+        flex-direction: column; /* Stack items on smaller screens */
+        align-items: center;
+    }
+}
+/* General Styling */
+body {
+    background-image: url('../images/healthcare-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    font-size: 16px; /* Reduce default text size */
+}
+
+/* Hero Section */
+.gradient-overlay {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px 20px;
+    border-radius: 8px;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-in-out;
+}
+
+.feature-card h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Login Button */
+.login-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: 14px;
+    color: white;
+    background: #2563EB;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+    background: #1D4ED8;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    background: #333;
+    color: white;
+}
+

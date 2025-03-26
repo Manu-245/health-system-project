@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Recorded Outcomes & Prescriptions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>My Recorded Outcomes & Prescriptions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date & Time</th>
+                    <th>Outcome</th>
+                    <th>Prescription</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment, patient, prescription in outcomes %}
+                <tr>
+                    <td>{{ patient.name }} ({{ patient.patient_number }})</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.outcome if appointment.outcome else "N/A" }}</td>
+                    <td>{{ prescription.prescription_details if prescription else "No Prescription" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Back to Dashboard -->
+        <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+    </div>
+</body>
+</html>

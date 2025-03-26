@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Conversations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Chat Conversations</h2>
+
+        <h3>Start a New Conversation</h3>
+        <form method="POST">
+            <label for="recipient_id">Select Recipient:</label>
+            <select name="recipient_id" id="recipient_id" required>
+                <option value="" disabled selected>Select a recipient</option>
+                {% for recipient in recipients %}
+                    <option value="{{ recipient.id }}">{{ recipient.username }} ({{ recipient.role }})</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Start Chat</button>
+        </form>
+
+        <h3>Past Conversations</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Recipient</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in conversations %}
+                <tr>
+                    <td>{{ user.username }} ({{ user.role }})</td>
+                    <td><a href="{{ url_for('conversation', recipient_id=user.id) }}">Open Conversation</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('dashboard') }}">⬅ Back to Dashboard</a>
+    </div>
+</body>
+</html>

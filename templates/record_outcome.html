@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Appointment Outcome</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Record Outcome for Appointment</h2>
+        <form method="POST">
+            <label for="outcome">Appointment Outcome:</label>
+            <textarea name="outcome" id="outcome" required placeholder="Enter diagnosis and notes"></textarea>
+
+            <label for="prescription">Prescription (if any):</label>
+            <textarea name="prescription" id="prescription" placeholder="Enter medication details"></textarea>
+
+            <button type="submit">Save Outcome</button>
+        </form>
+    </div>
+</body>
+</html>

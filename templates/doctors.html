@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctors List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Doctors List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Doctor Number</th>
+                    <th>Name</th>
+                    <th>Specialty</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                <tr>
+                    <td>{{ doctor.doctor_number }}</td>
+                    <td>{{ doctor.name }}</td>
+                    <td>{{ doctor.specialty }}</td>
+                    <td>{{ doctor.email }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Show "Back to Dashboard" link based on user role -->
+        {% if current_user.role == "Receptionist" %}
+            <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
+        {% elif current_user.role == "Doctor" %}
+            <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescriptions List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Prescriptions List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Appointment ID</th>
+                    <th>Prescription Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prescription, patient, doctor in prescriptions %}
+                <tr>
+                    <td>{{ patient.name }}</td>
+                    <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
+                    <td>{{ prescription.appointment_id }}</td>
+                    <td>{{ prescription.prescription_details }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Back to Dashboard -->
+        <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
+    </div>
+</body>
+</html>

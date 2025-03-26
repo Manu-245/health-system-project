@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Medical History</h2>
+
+        {% if patient %}
+        <h3>Appointment History for {{ patient.name }}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Doctor</th>
+                    <th>Status</th>
+                    <th>Outcome</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment, doctor in appointments %}
+                <tr>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
+                    <td>{{ appointment.status }}</td>
+                    <td>{{ appointment.outcome if appointment.outcome else "N/A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Prescriptions</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Doctor</th>
+                    <th>Prescription</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prescription, doctor in prescriptions %}
+                <tr>
+                    <td>{{ prescription.appointment_id }}</td>
+                    <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
+                    <td>{{ prescription.prescription_details }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        <!-- Redirect based on user role -->
+        {% if current_user.role == "Patient" %}
+            <a href="{{ url_for('patient_dashboard') }}">⬅ Back to Patient Dashboard</a>
+        {% elif current_user.role == "Doctor" %}
+            <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+        {% elif current_user.role == "Receptionist" %}
+            <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
+        {% endif %}
+    </div>
+</body>
+</html>

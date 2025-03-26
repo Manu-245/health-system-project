@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Appointments List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Doctor Name</th>
+                    <th>Appointment Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment, patient, doctor in appointments %}
+                <tr>
+                    <td>{{ patient.name }}</td>
+                    <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.status }}</td>
+                    <td>
+                        {% if current_user.role == "Doctor" and appointment.status == "Checked-In" %}
+                            <a href="{{ url_for('record_outcome', id=appointment.id) }}">Record Outcome</a>
+                        {% elif current_user.role == "Receptionist" and appointment.status == "Scheduled" %}
+                            <form action="{{ url_for('cancel_appointment', id=appointment.id) }}" method="POST">
+                                <button type="submit">Cancel</button>
+                            </form>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Show "Back to Dashboard" link based on user role -->
+        {% if current_user.role == "Receptionist" %}
+            <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
+        {% elif current_user.role == "Doctor" %}
+            <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+        {% endif %}
+    </div>
+</body>
+</html>

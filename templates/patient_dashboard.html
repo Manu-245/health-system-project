@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ patient.username }}</h2>
+
+        <h3>Patient dashboard</h3>
+        <div class="dashboard">
+            <ul>
+                <li><a href="{{ url_for('chat') }}">💬 Send Message</a></li>
+                <li><a href="{{ url_for('patient_history') }}">📋 View My Medical History</a></li>
+                <li><a href="{{ url_for('reset_password') }}">🔒 Reset Password</a></li>
+                <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

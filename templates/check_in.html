@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Check-In</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Patient Check-In</h2>
+
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}
+
+        <form method="POST">
+            <label for="patient_number">Enter Patient Number:</label>
+            <input type="text" name="patient_number" required placeholder="Enter patient number">
+            <button type="submit">Check-In</button>
+        </form>
+
+        <!-- Redirect based on user role -->
+        {% if current_user.role == "Receptionist" %}
+            <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
+        {% elif current_user.role == "Doctor" %}
+            <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -7,31 +7,79 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Prescriptions List</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Patient</th>
-                    <th>Doctor</th>
-                    <th>Appointment ID</th>
-                    <th>Prescription Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for prescription, patient, doctor in prescriptions %}
-                <tr>
-                    <td>{{ patient.name }}</td>
-                    <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
-                    <td>{{ prescription.appointment_id }}</td>
-                    <td>{{ prescription.prescription_details }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                {% if current_user.role == "Doctor" %}
+                    <li><a href="{{ url_for('doctor_dashboard') }}">🏥 <span class="link-text">Doctor Dashboard</span></a></li>
+                    <li><a href="{{ url_for('list_my_outcomes') }}">📋 <span class="link-text">My Outcomes</span></a></li>
+                    <li><a href="{{ url_for('list_prescriptions') }}" class="active">💊 <span class="link-text">Prescriptions</span></a></li>
+                {% elif current_user.role == "Receptionist" %}
+                    <li><a href="{{ url_for('receptionist_dashboard') }}">🏥 <span class="link-text">Receptionist Dashboard</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('list_prescriptions') }}" class="active">💊 <span class="link-text">Prescriptions</span></a></li>
+                {% elif current_user.role == "Patient" %}
+                    <li><a href="{{ url_for('patient_dashboard') }}">🏠 <span class="link-text">Patient Dashboard</span></a></li>
+                    <li><a href="{{ url_for('list_prescriptions') }}" class="active">💊 <span class="link-text">My Prescriptions</span></a></li>
+                {% endif %}
+                <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+            </ul>
+        </div>
 
-        <!-- Back to Dashboard -->
-        <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Prescriptions List</h2>
+            <!-- Back to Dashboard -->
+            <a href="
+                {% if current_user.role == 'Receptionist' %}
+                    {{ url_for('receptionist_dashboard') }}
+                {% elif current_user.role == 'Doctor' %}
+                    {{ url_for('doctor_dashboard') }}
+                {% elif current_user.role == 'Patient' %}
+                    {{ url_for('patient_dashboard') }}
+                {% endif %}
+            " class="back-btn">⬅ Back to Dashboard</a>
+            
+            <!-- Prescription Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Appointment ID</th>
+                            <th>Prescription Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prescription, patient, doctor in prescriptions %}
+                        <tr>
+                            <td>{{ patient.name }}</td>
+                            <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
+                            <td>{{ prescription.appointment_id }}</td>
+                            <td>{{ prescription.prescription_details }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
 </body>
 </html>

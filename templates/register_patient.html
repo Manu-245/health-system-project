@@ -7,42 +7,106 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Register New Patient</h2>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                {% if current_user.role == "Receptionist" %}
+                    <li><a href="{{ url_for('receptionist_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% elif current_user.role == "Doctor" %}
+                    <li><a href="{{ url_for('doctor_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% elif current_user.role == "Patient" %}
+                    <li><a href="{{ url_for('patient_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% endif %}
+            </ul>
+        </div>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-messages">
-                    <ul>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-        {% endwith %}
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Register New Patient</h2>
+            <div class="back-link">
+                <a href="{{ url_for('list_patients') }}">⬅ Back to Patients List</a>
+            </div>
 
-        <!-- Patient Registration Form -->
-        <form method="POST">
-            <label for="name">Full Name:</label>
-            <input type="text" name="name" id="name" required placeholder="Enter full name">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-            <label for="dob">Date of Birth:</label>
-            <input type="date" name="dob" id="dob" required>
+            <div class="form-container">
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="name">Full Name:</label>
+                        <input type="text" name="name" id="name" required placeholder="Enter full name">
+                    </div>
 
-            <label for="address">Address:</label>
-            <textarea name="address" id="address" required placeholder="Enter address"></textarea>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth:</label>
+                        <input type="date" name="dob" id="dob" required>
+                    </div>
 
-            <label for="phone">Phone Number:</label>
-            <input type="text" name="phone" id="phone" required placeholder="Enter phone number">
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <textarea name="address" id="address" required placeholder="Enter address"></textarea>
+                    </div>
 
-            <label for="email">Email Address:</label>
-            <input type="email" name="email" id="email" required placeholder="Enter email address">
+                    <div class="form-group">
+                        <label for="phone">Phone Number:</label>
+                        <input type="text" name="phone" id="phone" required placeholder="Enter phone number">
+                    </div>
 
-            <button type="submit">Register Patient</button>
-        </form>
+                    <div class="form-group">
+                        <label for="email">Email Address:</label>
+                        <input type="email" name="email" id="email" required placeholder="Enter email address">
+                    </div>
+
+                    <button type="submit" class="submit-btn">➕ Register Patient</button>
+                </form>
+
+                
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('main-content').classList.toggle('expanded');
+        }
+    </script>
+
+    <style>
+        /* Reusing styles from previous design */
+        .flash-messages { 
+            background: #f8d7da; 
+            color: #721c24; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin-bottom: 10px; 
+        }
+    </style>
 </body>
 </html>
-

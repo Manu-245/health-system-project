@@ -7,25 +7,102 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Patient Check-In</h2>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                {% if current_user.role == "Receptionist" %}
+                    <li><a href="{{ url_for('receptionist_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% elif current_user.role == "Doctor" %}
+                    <li><a href="{{ url_for('doctor_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% endif %}
+            </ul>
+        </div>
 
-        {% if message %}
-            <p>{{ message }}</p>
-        {% endif %}
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Patient Check-In</h2>
+            <a href="{{ url_for('dashboard') }}" class="back-button">
+                Back to Dashboard
+            </a>
 
-        <form method="POST">
-            <label for="patient_number">Enter Patient Number:</label>
-            <input type="text" name="patient_number" required placeholder="Enter patient number">
-            <button type="submit">Check-In</button>
-        </form>
+            <div class="table-container">
+                {% if message %}
+                    <p class="message">{{ message }}</p>
+                {% endif %}
 
-        <!-- Redirect based on user role -->
-        {% if current_user.role == "Receptionist" %}
-            <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
-        {% elif current_user.role == "Doctor" %}
-            <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
-        {% endif %}
+                <!-- Check-In Form -->
+                <form method="POST" class="checkin-form">
+                    <label for="patient_number">Enter Patient Number:</label>
+                    <input type="text" name="patient_number" required placeholder="Enter patient number">
+                    <button type="submit">Check-In</button>
+                </form>
+            </div>
+            <div class="table-container">
+
+                <!-- Appointments Table -->
+                <div class="table-container">
+                    <h3>Upcoming Appointments</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment, patient, doctor in appointments %}
+                                {% if current_user.role == "Receptionist" or (current_user.role == "Doctor" and appointment.doctor_id == current_user.doctor_id) %}
+                                    <tr>
+                                        <td>{{ patient.name }} ({{ patient.patient_number }})</td>
+                                        <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td> <!-- ✅ Fixed doctor name -->
+                                        <td>{{ appointment.appointment_date }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ appointment.status|lower }}">
+                                                {{ appointment.status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if appointment.status == "Checked-In" %}
+                                                <a href="{{ url_for('record_outcome', id=appointment.id) }}" class="record-btn">
+                                                    Record Outcome
+                                                </a>
+                                            {% else %}
+                                                <span>-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                        
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
+
 </body>
 </html>

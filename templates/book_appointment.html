@@ -7,30 +7,107 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Book an Appointment</h2>
-        <form method="POST">
-            <label for="patient_id">Select Patient:</label>
-            <select name="patient_id" id="patient_id" required>
-                <option value="">-- Select Patient --</option>
-                {% for patient in patients %}
-                <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.patient_number }})</option>
-                {% endfor %}
-            </select>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                {% if current_user.role == "Receptionist" %}
+                    <li><a href="{{ url_for('receptionist_dashboard') }}">🏥 <span class="link-text">Receptionist Dashboard</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('list_patients') }}">🧑‍⚕️ <span class="link-text">Patients</span></a></li>
+                    <li><a href="{{ url_for('book_appointment') }}" class="active">📌 <span class="link-text">Book Appointment</span></a></li>
+                {% elif current_user.role == "Doctor" %}
+                    <li><a href="{{ url_for('doctor_dashboard') }}">🏥 <span class="link-text">Doctor Dashboard</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">Send Message</span></a></li>
+                    <li><a href="{{ url_for('list_my_outcomes') }}">📋 <span class="link-text">View My Outcomes</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                {% elif current_user.role == "Patient" %}
+                    <li><a href="{{ url_for('patient_dashboard') }}">🏠 <span class="link-text">Patient Dashboard</span></a></li>
+                    <li><a href="{{ url_for('book_appointment') }}" class="active">📌 <span class="link-text">Book Appointment</span></a></li>
+                    <li><a href="{{ url_for('patient_history') }}">💊 <span class="link-text">View Prescriptions</span></a></li>
+                {% endif %}
+                <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+            </ul>
+        </div>
 
-            <label for="doctor_id">Select Doctor:</label>
-            <select name="doctor_id" id="doctor_id" required>
-                <option value="">-- Select Doctor --</option>
-                {% for doctor in doctors %}
-                <option value="{{ doctor.id }}">{{ doctor.name }} ({{ doctor.specialty }})</option>
-                {% endfor %}
-            </select>
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Book an Appointment</h2>
+            <!-- Back to Dashboard -->
+            <a href="  
+                {% if current_user.role == 'Receptionist' %}
+                    {{ url_for('receptionist_dashboard') }}
+                {% elif current_user.role == 'Doctor' %}
+                    {{ url_for('doctor_dashboard') }}
+                {% elif current_user.role == 'Patient' %}
+                    {{ url_for('patient_dashboard') }}
+                {% endif %}
+            " class="back-btn">⬅ Back to Dashboard</a>
 
-            <label for="appointment_date">Select Date & Time:</label>
-            <input type="datetime-local" name="appointment_date" id="appointment_date" required>
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-            <button type="submit">Book Appointment</button>
-        </form>
+            <!-- Appointment Booking Form -->
+            <div class="form-container">   
+                <form method="POST" class="appointment-form">
+                    
+                    {% if current_user.role == "Receptionist" %}
+                        <!-- Receptionist selects patient -->
+                        <div class="form-group">
+                            <label for="patient_id">Select Patient:</label>
+                            <select name="patient_id" id="patient_id" required>
+                                <option value="">-- Select Patient --</option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.name }} ({{ patient.patient_number }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% elif current_user.role == "Patient" %}
+                        <!-- Patient's ID is auto-selected -->
+                        <input type="hidden" name="patient_id" value="{{ current_user.patient_id }}">
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="doctor_id">Select Doctor:</label>
+                        <select name="doctor_id" id="doctor_id" required>
+                            <option value="">-- Select Doctor --</option>
+                            {% for doctor in doctors %}
+                                <option value="{{ doctor.id }}">{{ doctor.name }} ({{ doctor.specialty }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointment_date">Select Date & Time:</label>
+                        <input type="datetime-local" name="appointment_date" id="appointment_date" required>    
+                    </div>
+                   
+                    <button type="submit" class="btn">Book Appointment</button>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
 </body>
 </html>

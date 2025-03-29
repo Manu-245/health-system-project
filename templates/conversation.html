@@ -7,30 +7,140 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Chat with {{ recipient.username }}</h2>
-
-        <div id="chat-messages">
-            {% for message in messages %}
-                {% if message.sender_id == current_user.id %}
-                    <div class="message sent">
-                        <p> {{ message.message }}</p>
-                    </div>
-                {% else %}
-                    <div class="message received">
-                        <p> {{ message.message }}</p>
-                    </div>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                {% if current_user.role == "Receptionist" %}
+                    <li><a href="{{ url_for('receptionist_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% elif current_user.role == "Doctor" %}
+                    <li><a href="{{ url_for('doctor_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% elif current_user.role == "Patient" %}
+                    <li><a href="{{ url_for('patient_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
                 {% endif %}
-            {% endfor %}
+            </ul>
         </div>
 
-        <form method="POST">
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" required placeholder="Type your message here..."></textarea>
-            <button type="submit">Send Message</button>
-        </form>
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Chat with {{ recipient.username }}</h2>
+            <div class="back-link">
+                <a href="{{ url_for('chat') }}">⬅ Back to Conversations</a>
+            </div>
 
-        <a href="{{ url_for('chat') }}">⬅ Back to Conversations</a>
+            <div class="table-container">
+                <div id="chat-messages">
+                    {% for message in messages %}
+                        {% if message.sender_id == current_user.id %}
+                            <div class="message sent">
+                                <p> {{ message.message }}</p>
+                            </div>
+                        {% else %}
+                            <div class="message received">
+                                <p> {{ message.message }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <form method="POST" class="chat-form">
+                    <textarea id="message" name="message" required placeholder="Type your message here..."></textarea>
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
+
+            
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
+
+    <style>
+        /* Chat Layout */
+        .chat-container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Chat Messages */
+        #chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            background: #1abc9c;
+            color: white;
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .message.received {
+            background: #ecf0f1;
+            color: black;
+            align-self: flex-start;
+            text-align: left;
+        }
+
+        /* Chat Form */
+        .chat-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #1abc9c;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #16a085;
+        }
+    </style>
 </body>
 </html>

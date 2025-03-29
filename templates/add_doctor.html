@@ -7,20 +7,81 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Add New Doctor</h2>
-        <form method="POST">
-            <label for="name">Doctor Name:</label>
-            <input type="text" name="name" id="name" required placeholder="Enter doctor's name">
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                {% if current_user.role == "Receptionist" %}
+                    <li><a href="{{ url_for('receptionist_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% elif current_user.role == "Doctor" %}
+                    <li><a href="{{ url_for('doctor_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% elif current_user.role == "Patient" %}
+                    <li><a href="{{ url_for('patient_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">messages</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% endif %}
+            </ul>
+        </div>
 
-            <label for="specialty">Specialty:</label>
-            <input type="text" name="specialty" id="specialty" required placeholder="Enter specialty">
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Add New Doctor</h2>
+            <div class="back-link">
+                <a href="
+                {% if current_user.role == 'Receptionist' %}
+                    {{ url_for('receptionist_dashboard') }}
+                {% elif current_user.role == 'Doctor' %}
+                    {{ url_for('doctor_dashboard') }}
+                {% elif current_user.role == 'Patient' %}
+                    {{ url_for('patient_dashboard') }}
+                {% endif %}
+            " class="back-btn">⬅ Back to Dashboard</a>
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required placeholder="Enter email">
+            <div class="form-container">
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="name">Doctor Name:</label>
+                        <input type="text" name="name" id="name" required placeholder="Enter doctor's name">
+                    </div>
 
-            <button type="submit">Add Doctor</button>
-        </form>
+                    <div class="form-group">
+                        <label for="specialty">Specialty:</label>
+                        <input type="text" name="specialty" id="specialty" required placeholder="Enter specialty">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" name="email" id="email" required placeholder="Enter email">
+                    </div>
+
+                    <button type="submit" class="submit-btn">➕ Add Doctor</button>
+                </form>
+
+                
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('main-content').classList.toggle('expanded');
+        }
+    </script>
+
 </body>
 </html>

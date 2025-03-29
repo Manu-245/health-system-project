@@ -5,20 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
 <body>
-    <div class="container">
-        <h2>Welcome, {{ patient.username }}</h2>
-
-        <h3>Patient dashboard</h3>
-        <div class="dashboard">
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
             <ul>
-                <li><a href="{{ url_for('chat') }}">💬 Send Message</a></li>
-                <li><a href="{{ url_for('patient_history') }}">📋 View My Medical History</a></li>
-                <li><a href="{{ url_for('reset_password') }}">🔒 Reset Password</a></li>
-                <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">Send Message</span></a></li>
+                <li><a href="{{ url_for('patient_history') }}">📋 <span class="link-text">Medical Records</span></a></li>
+                <li><a href="{{ url_for('book_appointment') }}">📅 <span class="link-text"> Book Appointment</span></a></li>
+                <li><a href="{{ url_for('list_appointments') }}">📋 <span class="link-text"> View Appointments</span></a></li>
+                <li><a href="{{ url_for('patient_history') }}">💊 <span class="link-text"> View Prescriptions</span></a></li>
+                <li><a href="{{ url_for('reset_password') }}">🔒 <span class="link-text">Reset Password</span></a></li>
+                <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                
+                
+                
             </ul>
         </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Welcome, {{ patient.username }}</h2>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Upcoming Appointments</h4>
+                    <div class="stat-value">{{ upcoming_appointments|default(2) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Past Visits</h4>
+                    <div class="stat-value">{{ past_visits|default(8) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Prescriptions</h4>
+                    <div class="stat-value">{{ active_prescriptions|default(3) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Messages</h4>
+                    <div class="stat-value">{{ unread_messages|default(1) }}</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="{{ url_for('book_appointment') }}" class="action-btn">
+                        📅 Book Appointment
+                    </a>
+                    <a href="{{ url_for('list_appointments') }}" class="action-btn">
+                        📋 View Appointments
+                    </a>
+                    <a href="{{ url_for('chat') }}" class="action-btn">
+                        💬 Message Doctor
+                    </a>
+                    <a href="{{ url_for('patient_history') }}" class="action-btn">
+                        💊 View Prescriptions
+                    </a>
+                    <a href="{{ url_for('patient_history') }}" class="action-btn">
+                        📋 Medical Records
+                    </a>
+                </div>
+            </div>
+
+            <!-- Patient Appointments -->
+            <div class="appointments-container">
+                <h3>My Appointments</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment, doctor in appointments %}
+                        <tr>
+                            <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
+                            <td>{{ appointment.appointment_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <span class="status-badge status-{{ appointment.status|lower }}">
+                                    {{ appointment.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3">No appointments found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
 </body>
 </html>

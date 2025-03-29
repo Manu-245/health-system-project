@@ -7,35 +7,67 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Doctors List</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Doctor Number</th>
-                    <th>Name</th>
-                    <th>Specialty</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for doctor in doctors %}
-                <tr>
-                    <td>{{ doctor.doctor_number }}</td>
-                    <td>{{ doctor.name }}</td>
-                    <td>{{ doctor.specialty }}</td>
-                    <td>{{ doctor.email }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('receptionist_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                <li><a href="{{ url_for('list_patients') }}">👥 <span class="link-text">Patients</span></a></li>
+                <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">Appointments</span></a></li>
+                <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+            </ul>
+        </div>
 
-        <!-- Show "Back to Dashboard" link based on user role -->
-        {% if current_user.role == "Receptionist" %}
-            <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
-        {% elif current_user.role == "Doctor" %}
-            <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
-        {% endif %}
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Doctors List</h2>
+            <!-- Back to Dashboard -->
+            <div class="back-link">
+                {% if current_user.role == "Receptionist" %}
+                    <a href="{{ url_for('receptionist_dashboard') }}">⬅ Back to Receptionist Dashboard</a>
+                {% elif current_user.role == "Doctor" %}
+                    <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+                {% endif %}
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Doctor Number</th>
+                            <th>Name</th>
+                            <th>Specialty</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in doctors %}
+                        <tr>
+                            <td>{{ doctor.doctor_number }}</td>
+                            <td>{{ doctor.name }}</td>
+                            <td>{{ doctor.specialty }}</td>
+                            <td>{{ doctor.email }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
 </body>
 </html>

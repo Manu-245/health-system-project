@@ -5,42 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Conversations</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
 </head>
 <body>
-    <div class="container">
-        <h2>Chat Conversations</h2>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
 
-        <h3>Start a New Conversation</h3>
-        <form method="POST">
-            <label for="recipient_id">Select Recipient:</label>
-            <select name="recipient_id" id="recipient_id" required>
-                <option value="" disabled selected>Select a recipient</option>
-                {% for recipient in recipients %}
-                    <option value="{{ recipient.id }}">{{ recipient.username }} ({{ recipient.role }})</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Start Chat</button>
-        </form>
+            
+            <ul>
+                {% if current_user.role == 'Patient' %}
+                    <li><a href="{{ url_for('patient_dashboard') }}">🏠 <span class="link-text">Patient Dashboard</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">Send Message</span></a></li>
+                    <li><a href="{{ url_for('patient_history') }}">📋 <span class="link-text">Medical History</span></a></li>
+                    <li><a href="{{ url_for('book_appointment') }}">📅 <span class="link-text">Book Appointment</span></a></li>
+                    <li><a href="{{ url_for('patient_history') }}">💊 <span class="link-text">View Prescriptions</span></a></li>
+                    <li><a href="{{ url_for('reset_password') }}">🔒 <span class="link-text">Reset Password</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% endif %}
+                {% if current_user.role == 'Doctor' %}
+                    <li><a href="{{ url_for('doctor_dashboard') }}">🏥 <span class="link-text">Doctor Dashboard</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">Send Message</span></a></li>
+                    <li><a href="{{ url_for('list_my_outcomes') }}">📋 <span class="link-text">View My Outcomes</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('list_patients') }}">👥 <span class="link-text">Manage Patients</span></a></li>
+                    <li><a href="{{ url_for('reset_password') }}">🔒 <span class="link-text">Reset Password</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% endif %}
+                {% if current_user.role == 'Receptionist' %}
+                    <li><a href="{{ url_for('receptionist_dashboard') }}">🏥 <span class="link-text">Receptionist Dashboard</span></a></li>
+                    <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">Send Message</span></a></li>
+                    <li><a href="{{ url_for('register_patient') }}">➕ <span class="link-text">Add New Patient</span></a></li>
+                    <li><a href="{{ url_for('add_doctor') }}">➕ <span class="link-text">Add New Doctor</span></a></li>
+                    <li><a href="{{ url_for('book_appointment') }}">📅 <span class="link-text">Book an Appointment</span></a></li>
+                    <li><a href="{{ url_for('list_appointments') }}">📋 <span class="link-text">View Appointments</span></a></li>
+                    <li><a href="{{ url_for('list_patients') }}">👥 <span class="link-text">Manage Patients</span></a></li>
+                    <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Manage Patient Check-In</span></a></li>
+                    <li><a href="{{ url_for('patient_history') }}">📂 <span class="link-text">View Patient Records</span></a></li>
+                    <li><a href="{{ url_for('list_prescriptions') }}">💊 <span class="link-text">View Prescriptions</span></a></li>
+                    <li><a href="{{ url_for('reset_password') }}">🔒 <span class="link-text">Reset Password</span></a></li>
+                    <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+                {% endif %}
+            </ul>
+            <!-- Patient Stats -->
+            {% if current_user.role == 'Patient' %}
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Upcoming Appointments</h4>
+                    <div class="stat-value">{{ upcoming_appointments|default(2) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Past Visits</h4>
+                    <div class="stat-value">{{ past_visits|default(8) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Active Prescriptions</h4>
+                    <div class="stat-value">{{ active_prescriptions|default(3) }}</div>
+                </div>
+            </div>
+            {% endif %}
 
-        <h3>Past Conversations</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Recipient</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in conversations %}
-                <tr>
-                    <td>{{ user.username }} ({{ user.role }})</td>
-                    <td><a href="{{ url_for('conversation', recipient_id=user.id) }}">Open Conversation</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        </div>
 
-        <a href="{{ url_for('dashboard') }}">⬅ Back to Dashboard</a>
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <div class="page-header">
+                <h2>Chat Conversations</h2>
+                <a class="back-button" href="{{ url_for('dashboard') }}" >⬅ Back to Dashboard</a>
+            </div>
+
+            <!-- New Conversation Form -->
+            <div class="new-conversation">
+                <h3>Start a New Conversation</h3>
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="recipient_id" class="form-label">Select Recipient:</label>
+                        
+                        <!-- Search Field -->
+                        <input type="text" id="recipient_search" class="form-input" 
+                            placeholder="Type recipient's username..." onkeyup="fetchRecipients()">
+                        
+                        <!-- Dropdown to Select from Search Results -->
+                        <select name="recipient_id" id="recipient_id" class="form-select" required>
+                            <option value="" disabled selected>Select a recipient</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Start Chat</button>
+                </form>
+                
+            </div>
+
+
+            <!-- Past Conversations -->
+            <div class="conversations">
+                <h3>Past Conversations</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Recipient</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in conversations %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>
+                                <span class="role-badge role-{{ user.role|lower }}">
+                                    {{ user.role }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('conversation', recipient_id=user.id) }}" class="conversation-link">
+                                    Open Chat
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        function fetchRecipients() {
+            let searchQuery = document.getElementById('recipient_search').value;
+        
+            if (searchQuery.length < 1) return; // Stop if query is empty
+        
+            fetch(`/search_recipients?q=${searchQuery}`)
+                .then(response => response.json())
+                .then(data => {
+                    let recipientDropdown = document.getElementById('recipient_id');
+                    recipientDropdown.innerHTML = '<option value="" disabled selected>Select a recipient</option>';
+        
+                    data.forEach(user => {
+                        let option = document.createElement("option");
+                        option.value = user.id;
+                        option.textContent = `${user.username} (${user.role})`;
+                        recipientDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching recipients:", error));
+        }
+        
+        
+    </script>
 </body>
 </html>

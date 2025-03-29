@@ -6,6 +6,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_session import Session
 from flask_socketio import SocketIO, emit, join_room
+from flask import request, jsonify
 
 
 app = Flask(__name__)
@@ -77,6 +78,8 @@ class Prescription(db.Model):
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.id', ondelete="CASCADE"), nullable=False)
     appointment_id = db.Column(db.Integer, db.ForeignKey('appointment.id', ondelete="CASCADE"), nullable=False)
     prescription_details = db.Column(db.Text, nullable=False)
+    outcome = db.Column(db.Text, nullable=True)  # ✅ New column to store treatment results
+
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -318,15 +321,24 @@ def list_doctors():
 
 
 @app.route('/book_appointment', methods=['GET', 'POST'])
+@login_required
 def book_appointment():
-    patients = Patient.query.all()
     doctors = Doctor.query.all()
 
+    # If the user is a Receptionist, fetch all patients
+    patients = Patient.query.all() if current_user.role == "Receptionist" else None
+
     if request.method == 'POST':
-        patient_id = request.form['patient_id']
         doctor_id = request.form['doctor_id']
         appointment_date = request.form['appointment_date']
 
+        # If the user is a Patient, use their ID
+        if current_user.role == "Patient":
+            patient_id = current_user.patient_id
+        else:
+            patient_id = request.form['patient_id']  # Receptionist selects patient
+
+        # Create appointment
         new_appointment = Appointment(
             patient_id=patient_id,
             doctor_id=doctor_id,
@@ -336,18 +348,37 @@ def book_appointment():
 
         db.session.add(new_appointment)
         db.session.commit()
+        flash("Appointment successfully booked!", "success")
+
         return redirect(url_for('list_appointments'))
 
     return render_template('book_appointment.html', patients=patients, doctors=doctors)
 
-
 @app.route('/appointment')
+@login_required
 def list_appointments():
-    appointments = db.session.query(Appointment, Patient, Doctor).\
-        join(Patient, Appointment.patient_id == Patient.id).\
-        join(Doctor, Appointment.doctor_id == Doctor.id).all()
-    
+    if current_user.role == "Patient" and current_user.patient_id:
+        # Patients only see their own appointments
+        appointments = db.session.query(Appointment, Patient, Doctor).\
+            join(Patient, Appointment.patient_id == Patient.id).\
+            join(Doctor, Appointment.doctor_id == Doctor.id).\
+            filter(Appointment.patient_id == current_user.patient_id).all()
+
+    elif current_user.role == "Doctor" and current_user.doctor_id:
+        # Doctors only see their scheduled appointments
+        appointments = db.session.query(Appointment, Patient, Doctor).\
+            join(Patient, Appointment.patient_id == Patient.id).\
+            join(Doctor, Appointment.doctor_id == Doctor.id).\
+            filter(Appointment.doctor_id == current_user.doctor_id).all()
+
+    else:
+        # Receptionists and other roles see all appointments
+        appointments = db.session.query(Appointment, Patient, Doctor).\
+            join(Patient, Appointment.patient_id == Patient.id).\
+            join(Doctor, Appointment.doctor_id == Doctor.id).all()
+
     return render_template('appointments.html', appointments=appointments)
+
 
 
 @app.route('/cancel_appointment/<int:id>', methods=['POST'])
@@ -359,40 +390,55 @@ def cancel_appointment(id):
 
 
 @app.route('/check_in', methods=['GET', 'POST'])
+@login_required
 def check_in():
     message = None
 
     if request.method == 'POST':
         patient_number = request.form['patient_number']
-
-        # Find the patient by patient number
         patient = Patient.query.filter_by(patient_number=patient_number).first()
 
         if patient:
-            # Find the patient's next scheduled appointment
             appointment = Appointment.query.filter_by(patient_id=patient.id, status="Scheduled").first()
 
             if appointment:
-                # DEBUG: Print the appointment details before updating
                 print(f"Before Update: ID={appointment.id}, Status={appointment.status}")
-
-                # Explicitly update the status
                 appointment.status = "Checked-In"
-
-                # Force SQLAlchemy to detect the change
                 db.session.commit()
-
-                # DEBUG: Print the appointment details after updating
-                updated_appointment = Appointment.query.get(appointment.id)
-                print(f"After Update: ID={updated_appointment.id}, Status={updated_appointment.status}")
-
+                print(f"After Update: ID={appointment.id}, Status={appointment.status}")
                 message = f"Checked in successfully for appointment on {appointment.appointment_date}."
             else:
                 message = "No scheduled appointments found for this patient."
         else:
             message = "Patient not found. Please enter a valid patient number."
 
-    return render_template('check_in.html', message=message)
+    # 🔹 Get doctor details
+    doctor = Doctor.query.filter_by(doctor_number=current_user.doctor_number).first()
+
+    if current_user.role == "Receptionist":
+        # Receptionist sees all scheduled appointments (including doctor details)
+        appointments = db.session.query(Appointment, Patient, Doctor).\
+            join(Patient, Appointment.patient_id == Patient.id).\
+            join(Doctor, Appointment.doctor_id == Doctor.id).\
+            filter(Appointment.status == "Scheduled").all()
+
+    elif current_user.role == "Doctor" and doctor:
+        # Doctor sees only their own scheduled appointments
+        appointments = db.session.query(Appointment, Patient, Doctor).\
+            join(Patient, Appointment.patient_id == Patient.id).\
+            join(Doctor, Appointment.doctor_id == Doctor.id).\
+            filter(Appointment.status == "Scheduled", Appointment.doctor_id == doctor.id).all()
+
+    else:
+        appointments = []
+
+    print(f"Appointments Found: {len(appointments)}")  # Debugging
+
+    return render_template('check_in.html', message=message, appointments=appointments)
+
+
+
+
 
 
 @app.route('/record_outcome/<int:id>', methods=['GET', 'POST'])
@@ -431,27 +477,31 @@ def record_outcome(id):
 
 
 
-@app.route('/patient_history', methods=['GET', 'POST'])
+@app.route('/patient_history', methods=['GET','POST'])
 @login_required
 def patient_history():
-    # If the logged-in user is a Patient, fetch their history automatically
+    # Ensure only patients and doctors can access this page
     if current_user.role == "Patient":
         patient = Patient.query.filter_by(id=current_user.patient_id).first()
+    elif current_user.role == "Doctor":
+        patient_id = request.args.get("patient_id")
+        patient = Patient.query.filter_by(id=patient_id).first()
+    else:
+        return "Unauthorized access.", 403
 
-        if not patient:
-            return "Patient record not found."
+    if not patient:
+        return "Patient record not found."
 
-        # Get the patient's appointment history
-        appointments = db.session.query(Appointment, Doctor).\
-            join(Doctor, Appointment.doctor_id == Doctor.id).\
-            filter(Appointment.patient_id == patient.id).all()
+    # Get the patient's appointment history
+    appointments = db.session.query(Appointment, Doctor).\
+        join(Doctor, Appointment.doctor_id == Doctor.id).\
+        filter(Appointment.patient_id == patient.id).all()
 
-        # Get the patient's prescriptions
-        prescriptions = db.session.query(Prescription, Doctor).\
-            join(Doctor, Prescription.doctor_id == Doctor.id).\
-            filter(Prescription.patient_id == patient.id).all()
+    # Get the patient's prescriptions along with their doctors
+    prescriptions = db.session.query(Prescription, Doctor).\
+        join(Doctor, Prescription.doctor_id == Doctor.id).\
+        filter(Prescription.patient_id == patient.id).all()
 
-        return render_template('patient_history.html', patient=patient, appointments=appointments, prescriptions=prescriptions)
 
     # If the logged-in user is a Doctor or Receptionist, show a search form
     if request.method == 'POST':
@@ -559,7 +609,13 @@ def patient_dashboard():
     if current_user.role != "Patient":
         return "Access Denied"
 
-    return render_template('patient_dashboard.html', patient=current_user)
+    # Fetch all appointments for the logged-in patient
+    appointments = db.session.query(Appointment, Doctor).\
+        join(Doctor, Appointment.doctor_id == Doctor.id).\
+        filter(Appointment.patient_id == current_user.id).\
+        order_by(Appointment.appointment_date.desc()).all()
+
+    return render_template('patient_dashboard.html', patient=current_user, appointments=appointments)
 
 
 @app.route('/reset_password', methods=['GET', 'POST'])
@@ -608,20 +664,59 @@ def chat():
     # Handle starting a new conversation
     if request.method == 'POST':
         recipient_id = request.form.get('recipient_id')
+        recipient_number = request.form.get('recipient_number')
+
+        # If recipient_id is selected
         if recipient_id:
             return redirect(url_for('conversation', recipient_id=recipient_id))
 
+        # If recipient_number is entered manually
+        if recipient_number:
+            recipient = User.query.filter_by(phone_number=recipient_number).first()
+            if recipient:
+                return redirect(url_for('conversation', recipient_id=recipient.id))
+            flash("No user found with that number.", "error")
+
     # Determine possible recipients based on user role
     if current_user.role == "Doctor":
-        recipients = User.query.filter((User.role.in_(['Patient', 'Receptionist', 'Doctor'])) & (User.id != current_user.id)).all()
+        recipients = User.query.filter(User.role.in_(['Patient', 'Receptionist', 'Doctor']), User.id != current_user.id).all()
     elif current_user.role == "Receptionist":
-        recipients = User.query.filter((User.role.in_(['Doctor', 'Patient'])) & (User.id != current_user.id)).all()
+        recipients = User.query.filter(User.role.in_(['Doctor', 'Patient']), User.id != current_user.id).all()
     elif current_user.role == "Patient":
         assigned_doctor = User.query.filter_by(id=current_user.doctor_id).first()  # Get assigned doctor
         receptionist = User.query.filter_by(role="Receptionist").first()  # Get receptionist
         recipients = [r for r in [assigned_doctor, receptionist] if r]  # Remove None values
 
     return render_template('chat.html', conversations=conversations, recipients=recipients)
+
+
+@app.route('/search_recipients')
+@login_required
+def search_recipients():
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        return jsonify([])
+
+    # Patients can only message Doctors & Receptionists
+    if current_user.role == "Patient":
+        possible_recipients = User.query.filter(
+            (User.role.in_(['Doctor', 'Receptionist'])) &
+            (User.username.ilike(f"%{query}%"))
+        ).all()
+
+    # Doctors & Receptionists can message anyone except themselves
+    else:
+        possible_recipients = User.query.filter(
+            (User.username.ilike(f"%{query}%")) &
+            (User.id != current_user.id)  # Exclude self
+        ).all()
+
+    # Convert to JSON-friendly response
+    recipients_data = [{"id": user.id, "username": user.username, "role": user.role} for user in possible_recipients]
+
+    return jsonify(recipients_data)
+
 
 
 

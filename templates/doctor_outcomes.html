@@ -7,31 +7,75 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>My Recorded Outcomes & Prescriptions</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Patient</th>
-                    <th>Date & Time</th>
-                    <th>Outcome</th>
-                    <th>Prescription</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for appointment, patient, prescription in outcomes %}
-                <tr>
-                    <td>{{ patient.name }} ({{ patient.patient_number }})</td>
-                    <td>{{ appointment.appointment_date }}</td>
-                    <td>{{ appointment.outcome if appointment.outcome else "N/A" }}</td>
-                    <td>{{ prescription.prescription_details if prescription else "No Prescription" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('doctor_dashboard') }}">🏠 <span class="link-text">Home</span></a></li>
+                <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                <li><a href="{{ url_for('list_my_outcomes') }}">📋 <span class="link-text">View Outcomes</span></a></li>
+                <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+            </ul>
+        </div>
 
-        <!-- Back to Dashboard -->
-        <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>My Recorded Outcomes & Prescriptions</h2>
+             <!-- Back to Dashboard -->
+             <div class="back-link">
+                <a href="{{ url_for('doctor_dashboard') }}">⬅ Back to Doctor Dashboard</a>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Date & Time</th>
+                            <th>Outcome</th>
+                            <th>Prescription</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment, patient, prescription in outcomes %}
+                        <tr>
+                            <td>{{ patient.name }} ({{ patient.patient_number }})</td>
+                            <td>{{ appointment.appointment_date }}</td>
+                            <td>
+                                {% if appointment.outcome %}
+                                    <span class="outcome-badge">{{ appointment.outcome }}</span>
+                                {% else %}
+                                    <span class="no-outcome">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if prescription %}
+                                    {{ prescription.prescription_details }}
+                                {% else %}
+                                    <span class="no-prescription">No Prescription</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
+
 </body>
 </html>

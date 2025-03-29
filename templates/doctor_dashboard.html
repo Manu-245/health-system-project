@@ -5,50 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
 </head>
 <body>
-    <div class="container">
-        <h2>Welcome, Dr. {{ current_user.username }}</h2>
-        <h3>Doctor Dashboard</h3>
-        <div class="dashboard">
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
             <ul>
-                <li><a href="{{ url_for('chat') }}">💬 Send Message</a></li>
-                <li><a href="{{ url_for('list_my_outcomes') }}">📋 View My Recorded Outcomes</a></li>
-                <li><a href="{{ url_for('check_in') }}">✅ Manage Patient Check-In</a></li>
-                <li><a href="{{ url_for('list_patients') }}">👥 Manage Patients</a></li>
-                <li><a href="{{ url_for('reset_password') }}">🔒 Reset Password</a></li>
-                <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">Send Message</span></a></li>
+                <li><a href="{{ url_for('list_my_outcomes') }}">📋 <span class="link-text">View My Outcomes</span></a></li>
+                <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Patient Check-In</span></a></li>
+                <li><a href="{{ url_for('list_patients') }}">👥 <span class="link-text">Manage Patients</span></a></li>
+                <li><a href="{{ url_for('list_appointments') }}">📅 <span class="link-text">My Appointments</span></a></li>
+                <li><a href="{{ url_for('reset_password') }}">🔒 <span class="link-text">Reset Password</span></a></li>
+                <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
             </ul>
         </div>
-        <h3>Upcoming Appointments</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Patient</th>
-                    <th>Date & Time</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for appointment, patient in appointments %}
-                <tr>
-                    <td>{{ patient.name }} ({{ patient.patient_number }})</td>
-                    <td>{{ appointment.appointment_date }}</td>
-                    <td>{{ appointment.status }}</td>
-                    <td>
-                        {% if appointment.status == "Checked-In" %}
-                            <a href="{{ url_for('record_outcome', id=appointment.id) }}">Record Outcome</a>
-                        {% else %}
-                            <span>-</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
 
-        
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Welcome, Dr. {{ current_user.username }}</h2>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Today's Appointments</h4>
+                    <div class="stat-value">{{ today_appointments|default(5) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Pending Check-ins</h4>
+                    <div class="stat-value">{{ pending_checkins|default(2) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Total Patients</h4>
+                    <div class="stat-value">{{ total_patients|default(128) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Completed Today</h4>
+                    <div class="stat-value">{{ completed_today|default(3) }}</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="{{ url_for('list_my_outcomes') }}" class="action-btn">
+                        📋 View Outcomes
+                    </a>
+                    <a href="{{ url_for('check_in') }}" class="action-btn">
+                        ✅ Check-in Patient
+                    </a>
+                    <a href="{{ url_for('chat') }}" class="action-btn">
+                        💬 Send Message
+                    </a>
+                    <a href="{{ url_for('list_patients') }}" class="action-btn">
+                        👥 View Patients
+                    </a>
+                </div>
+            </div>
+
+            
+            <!-- Patient Appointments -->
+<div class="appointments-container">
+    <h3>My Appointments</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Doctor</th>
+                <th>Date & Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment, doctor in appointments %}
+            <tr>
+                <td>Dr. {{ doctor.name }} ({{ doctor.specialty }})</td>
+                <td>{{ appointment.appointment_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <span class="status-badge status-{{ appointment.status|lower }}">
+                        {{ appointment.status }}
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No appointments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
 </body>
 </html>

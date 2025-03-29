@@ -5,49 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receptionist Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
 <body>
-    <div class="container">
-        <h2>Welcome, Receptionist</h2>
-        <h3>receptionist dashboard</h3>
-        <div class="dashboard">
-        <ul>
-            <li><a href="{{ url_for('chat') }}">💬 Send Message</a></li>
-            <li><a href="{{ url_for('register_patient') }}">➕ Add New Patient</a></li>
-            <li><a href="{{ url_for('add_doctor') }}">➕ Add New Doctor</a></li>
-            <li><a href="{{ url_for('book_appointment') }}">📅 Book an Appointment</a></li>
-            <li><a href="{{ url_for('list_appointments') }}">📋 View Appointments</a></li>
-            <li><a href="{{ url_for('list_patients') }}">👥 Manage Patients</a></li>
-            <li><a href="{{ url_for('check_in') }}">✅ Manage Patient Check-In</a></li>
-            <li><a href="{{ url_for('patient_history') }}">📂 View Patient Records</a></li>
-            <li><a href="{{ url_for('list_prescriptions') }}">💊 View Prescriptions</a></li>
-            <li><a href="{{ url_for('reset_password') }}">🔒 Reset Password</a></li>
-            <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
-        </ul>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="link-text">Dashboard</span>
+                <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('chat') }}">💬 <span class="link-text">Send Message</span></a></li>
+                <li><a href="{{ url_for('register_patient') }}">➕ <span class="link-text">Add New Patient</span></a></li>
+                <li><a href="{{ url_for('add_doctor') }}">➕ <span class="link-text">Add New Doctor</span></a></li>
+                <li><a href="{{ url_for('book_appointment') }}">📅 <span class="link-text">Book an Appointment</span></a></li>
+                <li><a href="{{ url_for('list_appointments') }}">📋 <span class="link-text">View Appointments</span></a></li>
+                <li><a href="{{ url_for('list_patients') }}">👥 <span class="link-text">Manage Patients</span></a></li>
+                <li><a href="{{ url_for('list_doctors') }}">👥 <span class="link-text">View doctors</span></a></li>
+                <li><a href="{{ url_for('check_in') }}">✅ <span class="link-text">Manage Patient Check-In</span></a></li>
+                <li><a href="{{ url_for('list_prescriptions') }}">💊 <span class="link-text">View Prescriptions</span></a></li>
+                <li><a href="{{ url_for('reset_password') }}">🔒 <span class="link-text">Reset Password</span></a></li>
+                <li><a href="{{ url_for('logout') }}">🚪 <span class="link-text">Logout</span></a></li>
+            </ul>
         </div>
 
-        <h3>Available Doctors</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Doctor Number</th>
-                    <th>Name</th>
-                    <th>Specialty</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for doctor in doctors %}
-                <tr>
-                    <td>{{ doctor.doctor_number }}</td>
-                    <td>{{ doctor.name }}</td>
-                    <td>{{ doctor.specialty }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Welcome, Receptionist</h2>
 
-        
-        
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Total Doctors</h4>
+                    <div class="stat-value">{{ total_doctors|default(12) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Total Patients</h4>
+                    <div class="stat-value">{{ total_patients|default(156) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Today's Appointments</h4>
+                    <div class="stat-value">{{ today_appointments|default(8) }}</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Pending Check-ins</h4>
+                    <div class="stat-value">{{ pending_checkins|default(3) }}</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="{{ url_for('book_appointment') }}" class="action-btn">
+                        📅 Book Appointment
+                    </a>
+                    <a href="{{ url_for('register_patient') }}" class="action-btn">
+                        ➕ New Patient
+                    </a>
+                    <a href="{{ url_for('check_in') }}" class="action-btn">
+                        ✅ Patient Check-in
+                    </a>
+                    <a href="{{ url_for('chat') }}" class="action-btn">
+                        💬 Send Message
+                    </a>
+                </div>
+            </div>
+
+            <!-- Available Doctors -->
+            <div class="table-container">
+                <h3>Available Doctors</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Doctor Number</th>
+                            <th>Name</th>
+                            <th>Specialty</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in doctors %}
+                        <tr>
+                            <td>{{ doctor.doctor_number }}</td>
+                            <td>{{ doctor.name }}</td>
+                            <td>{{ doctor.specialty }}</td>
+                            <td>{{ doctor.status|default('Available') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
 </body>
 </html>

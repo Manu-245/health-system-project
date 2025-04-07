@@ -419,7 +419,7 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url('https://source.unsplash.com/1600x900/?hospital,doctor') center/cover no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url('../uploades/hosy.avif') center/cover no-repeat;
     height: 80vh;
     display: flex;
     justify-content: center;
